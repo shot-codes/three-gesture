@@ -4,23 +4,28 @@
   import { gesture, handLocation } from "$lib/stores";
 
   let rotation = 0;
-  let rotationDif = 0;
   let previousRotation = 0;
-  let lastRotation = 0;
+  let initialDif = 0;
+  let rotationDif = 0;
   let panning = false;
+  let firstPan = true;
 
   $: {
-    rotationDif = previousRotation - $handLocation * 3;
-    previousRotation = $handLocation;
+    rotationDif = $handLocation * 3;
   }
 
   useFrame(() => {
     if ($gesture == "Closed_Fist") {
+      if (firstPan) {
+        firstPan = false;
+        initialDif = rotationDif;
+      }
       panning = true;
-      rotation = rotationDif;
+      rotation = previousRotation + (initialDif - rotationDif);
     } else if (panning == true) {
+      firstPan = true;
       panning = false;
-      rotation = previousRotation;
+      previousRotation = rotation;
     }
   });
 </script>

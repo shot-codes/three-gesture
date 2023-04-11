@@ -7,8 +7,8 @@
 
   let gestureRecognizer: GestureRecognizer;
   let gestureButtonText = "Enable Webcam";
-  let detectedGesture: string;
-  let detectedGestureConfidence: number;
+  let detectedGesture = "N/A";
+  let detectedGestureConfidence = -1;
   let webcamRunning = false;
   let video: HTMLVideoElement;
   let canvas: HTMLCanvasElement;
@@ -40,12 +40,10 @@
       gestureButtonText = "Disable Preditictions";
     }
 
-    // getUsermedia parameters.
     const constraints = {
       video: true,
     };
 
-    // Activate the webcam stream.
     navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
       video.srcObject = stream;
       video.addEventListener("loadeddata", predictWebcam);
@@ -70,10 +68,9 @@
       canvasCtx.restore();
 
       if (results.gestures.length > 0) {
-        detectedGesture = results.gestures[0][0].categoryName;
         $gesture = detectedGesture;
         $handLocation = results.landmarks[0][0].x;
-        console.log(results.landmarks);
+        detectedGesture = results.gestures[0][0].categoryName;
         detectedGestureConfidence = Math.round(results.gestures[0][0].score * 100);
       }
 
@@ -84,25 +81,34 @@
   };
 </script>
 
-<div class="absolute flex flex-col bottom-0 right-0 items-end m-2 space-y-2">
-  <div class="w-[200px] h-[150px]">
+<div
+  class="absolute bottom-0 right-0 m-2 flex flex-col items-end space-y-1 rounded bg-neutral-800 p-2"
+>
+  <div class="mb-2 h-[150px] w-[200px]">
+    <img class="absolute" src="camera-placeholder.png" alt="camera placeholder" />
     <video
       bind:this={video}
       autoplay
       playsinline
-      class="absolute w-[200px] h-[150px] scale-x-[-1]"
+      class="absolute h-[150px] w-[200px] scale-x-[-1]"
     />
-    <canvas bind:this={canvas} class="absolute scale-x-[-1] w-[200px] h-[150px]" />
+    <canvas bind:this={canvas} class="absolute h-[150px] w-[200px] scale-x-[-1]" />
   </div>
-  <div class="flex space-x-2">
-    {#if detectedGesture}
-      <div class="flex flex-col">
-        <p class="dark:text-white">{detectedGesture}</p>
-        <p class="dark:text-white">{detectedGestureConfidence}%</p>
-      </div>
-    {/if}
-    <button on:click={enableCamera} class="p-2 border dark:text-white">
-      {gestureButtonText}
-    </button>
+
+  <div class="flex w-full justify-between px-1 text-sm">
+    <p class="text-neutral-500">GESTURE</p>
+    <p class="text-neutral-300">{detectedGesture}</p>
   </div>
+
+  <div class="flex w-full justify-between px-1 text-sm">
+    <p class="text-neutral-500">CONFIDENCE</p>
+    <p class="text-neutral-300">{detectedGestureConfidence}%</p>
+  </div>
+
+  <button
+    on:click={enableCamera}
+    class="w-full rounded border border-neutral-500 bg-neutral-900 p-2 text-sm text-neutral-300"
+  >
+    {gestureButtonText}
+  </button>
 </div>
